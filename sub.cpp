@@ -268,30 +268,40 @@ void Vanced::showProfile()
 int Vanced::attackMenu()
 {
 	int selection;
-	int sel2;
+	int entry;
+	string sorry = "Sorry , I don't think that's a number ?";
 	cout << " Attack (1)" << "\n Escape (2)";		//"\nSpecial Attack (3)" << 
 	for(int j=0;j<3;j++)
 	{
-		if( !specAtk[j].empty() )
+		if( !specAtk[j].empty() )					// It shows special attacks if purchased
 		{
 			cout << "\n " << specAtk[j] << " (" << j+3 << ")";
 		}
 	}
 	while( selection != 1 && selection != 2 && selection != 3 && selection != 4 && selection != 5 )
 	{
-		cout << "\n> ";
-		cin >> sel2;
-		if ( sel2 <= 2 )
+		try
 		{
-			selection = sel2;
+			cout << "\n> ";
+			cin >> entry;
+			if ( entry < 3 && entry > 0 )
+			{
+				selection = entry;
+			}
+			else if ( entry > 2 && specAtk[entry-3].empty() != true)
+			{
+				selection = entry;
+			}
+			else if (!cin)
+			{
+				throw sorry;
+			}
 		}
-		else if ( sel2 > 2 && specAtk[sel2-3].empty() != true)
+		catch(string s)
 		{
-			selection = sel2;
-		}
-		else 
-		{
-			cout << "\n You are not able to use that skill !" << endl;
+			cout << s << endl;
+			cin.clear();
+			cin.ignore(100,'\n');
 		}
 	}
 	return selection;
@@ -324,7 +334,7 @@ void Vanced::killed(Opponent& mons)
 	if ( mons.getLevel() >= score)
 	{
 		score = mons.getLevel();
-	}
+	};
 	if ( mons.getLevel() == 1)
 	{
 		exp += 80.5;
@@ -354,8 +364,14 @@ int Vanced::getScore()
 void Vanced::scoreTable()
 {
 	system("cls");
-	cout << "\n\n\n\t\tHey you Brave warrior , " << name << " !"
-		 << "\n\n\n\t\tYou reached " << score << "level before you die !" << endl;
+	cout << "\n\n\n\t\t*******************************";
+	cout << "\n\n\n\t\tHey you Brave warrior , " << name << " !";
+	cout << "\n\n\n\t\tYour last Heal Point  , " << hp   ;
+	cout << "\n\n\n\t\tYour last Power Point , " << power;
+	cout << "\n\n\n\t\tYour gaining before you die " << gold ;
+	cout << "\n\n\n\t\tYour experience before dying " << exp ;
+	cout << "\n\n\n\t\tYou reached [" << score << "] level before you die !" ;
+	cout << "\n\n\n\t\t*******************************" << endl;
 }
 int Opponent::getLevel()
 {
@@ -379,22 +395,35 @@ void Opponent::harm(double *healt)
 }
 void blackSmith(Vanced& obj)
 {
+	string sorry = "There's no choice like" ;
 	int selection;
 	cout << "Leather shield  -- 100 G (1)" << "\nIron Shield  -- 200 G (2)" << "\nChitin Shell  -- 300 G (3)" 
 		 << "\nPlatin Shield  -- 1000 G (4)"<< "\nDiamond Shield -- 10k G (5)"<< "\nDragon Shield  -- 50k G (6)"
 		 << "\nMortal's Shield  -- 200k G (7)"<< "\nLegendary Shield  -- 1M G (8)"<< "\nEscape from shop ... (0)" << endl;
 	cout << "\nIn your wallet : " << obj.getMoney() << endl;
 	cout << "\nChoose what to do ";
-	cout << "> ";
-	cin >> selection;
-	if(selection != 0)
+	try
 	{
-		obj.purchase(selection,"blacksmith");
+		cout << "> ";
+		cin >> selection;
+		if(selection != 0)
+		{
+			obj.purchase(selection,"blacksmith");
+		}
+		else if ( selection == 0)
+		{
+			cout << "You decided to buy nothing here ..." << endl;
+		}
+		else 
+		{
+			throw sorry + to_string(selection);
+		}
 	}
-	else 
+	catch(string s)
 	{
-		cout << "You decided to buy nothing here ..." << endl;
+		cout << s << endl;
 	}
+
 }
 void weaponShop(Vanced& obj)
 {
@@ -449,10 +478,13 @@ void marketInstruction()
 }
 MarketPlace::MarketPlace(Vanced& obj)
 {
-	cout << "Hello " << obj.getName() << "\n Where you want to travel ? " << endl;
+	string sorry = "I think that's not a choice ...";
+	cout << "Hello " << obj.getName() << "\nWhere you want to travel ? " << endl;
 	cout << "Blacksmith (1) " << "\nWeapon Shop (2) " << "\nMagic Shop (3)" << endl;
 	int selection ;
 	char items;
+	bool done = false;
+	cout << "> ";
 	cin >> selection ;
 	cout << "Want to see items insturction ? (y/n)" << endl;
 	cout << "> ";
@@ -469,23 +501,36 @@ MarketPlace::MarketPlace(Vanced& obj)
 	{
 		cout << "Wrong selection !" << endl;
 	};
-	switch ( selection )
+	while( !done )
 	{
-		case 1 : {
-			blackSmith(obj);
-			break;
+		try
+		{
+			if ( selection == 1)
+			{
+				blackSmith(obj);
+				done = true;
+			}
+			else if ( selection == 2)
+			{
+				weaponShop(obj);
+				done = true;
+			}
+			else if ( selection == 2)
+			{
+				magicShop(obj);
+				done = true;
+			}
+			else if (!cin)
+			{
+				throw sorry;
+				cout << "Selection = " << selection << endl;
+			}
 		}
-		case 2 : {
-			weaponShop(obj);
-			break;
-		}
-		case 3 : {
-			magicShop(obj);
-			break;
-		}
-		default : {
-			cout << "No choice : " << selection << endl;
-			break;
+		catch(string entry)
+		{
+		cout << entry << endl;
+		cin.clear(); 
+		cin.ignore(100, '\n'); 
 		}
 	}
 }
@@ -495,6 +540,23 @@ void fastGame(Vanced& hero)
 }
 void mapMenu(Vanced& hero)
 {
+			cout << "Frozen Monster (EASY) " << "\t\t\t\t\tUNKNOWN  ???" 
+			 << "\n\n\nUNKNOWN  ???" << "\t\t\t\t\tUNKNOWN   ???" << endl;
+	if ( hero.getScore() >= 2 )
+	{
+		cout << "Frozen Monster (EASY) " << "\t\t\t\t\tFire Lord (NORMAL)" 
+			 << "\n\n\nUNKNOWN  ???" << "\t\t\t\t\tUNKNOWN   ???" << endl;
+	}
+	else if ( hero.getScore() >= 3 )
+	{
+		cout << "Frozen Monster (EASY) " << "\t\t\t\t\tFire Lord (NORMAL)" 
+			 << "\n\n\nSoul of Mortal (HARD)" << "\t\t\t\t\tUNKNOWN   ???" << endl;
+	}
+	else if ( hero.getScore() >= 4 )
+	{
+		cout << "Frozen Monster (EASY) " << "\t\t\t\t\tFire Lord (NORMAL)" 
+		 	 << "\n\n\nSoul of Mortal (HARD)" << "\t\t\t\t\tPip Doun  (MIRAGE)" << endl;
+	};
 	cout << "\n\n\n\nEscape (0)" << "\nSick Frozen Monster (1)" << "\nSick UNKNOWN (2)" << endl;
 	if ( hero.getScore() >= 2 )
 	{
@@ -515,25 +577,10 @@ void map(Vanced& hero)
 	Begin begin("Fire Lord");
 	Hard harder("Soul of Mortal");
 	Imp impos("PipDoun");
+	impos = hero;
 	int sel;
-		cout << "Frozen Monster (EASY) " << "\t\t\t\t\tUNKNOWN  ???" 
-			 << "\n\n\nUNKNOWN  ???" << "\t\t\t\t\tUNKNOWN   ???" << endl;
-	if ( hero.getScore() >= 2 )
-	{
-		cout << "Frozen Monster (EASY) " << "\t\t\t\t\tFire Lord (NORMAL)" 
-			 << "\n\n\nUNKNOWN  ???" << "\t\t\t\t\tUNKNOWN   ???" << endl;
-	}
-	else if ( hero.getScore() >= 3 )
-	{
-		cout << "Frozen Monster (EASY) " << "\t\t\t\t\tFire Lord (NORMAL)" 
-			 << "\n\n\nSoul of Mortal (HARD)" << "\t\t\t\t\tUNKNOWN   ???" << endl;
-	}
-	else if ( hero.getScore() >= 4 )
-	{
-		cout << "Frozen Monster (EASY) " << "\t\t\t\t\tFire Lord (NORMAL)" 
-		 	 << "\n\n\nSoul of Mortal (HARD)" << "\t\t\t\t\tPip Doun  (MIRAGE)" << endl;
-	}
 	mapMenu(hero);
+	hero.getScore();
 	cout << "> ";
 	cin >> sel;
 
@@ -605,40 +652,61 @@ void gameMenu(Vanced& hero)
 {
 	system("cls");
 	int sel;
-	cout << "\n\n\n\t\t\tGo to Market Place (1)" << "\n\t\t\tGo to Hunting (2)" << "\n\t\t\tSuicide (3)" << "\n\t\t\tLook on your bag (4)" << "\n> ";
-	cin >> sel;
-	if (sel == 1)
+	string sorry = "Sorry , I don't think that's a number ?";
+	cout << "\n\n\n\t\t\tGo to Market Place (1)" << "\n\t\t\tGo to Hunting (2)" << "\n\t\t\tSuicide (3)" << "\n\t\t\tLook on your bag (4)" ;
+	try
 	{
-		system("cls");
-		MarketPlace market(hero);
-		system("pause");
-	}
-	else if (sel == 2)
-	{
-		system("cls");
-		cout <<" \n\n" << endl;
-		map(hero);
-	}
-	else if (sel == 3)
-	{
-		cout << " You killed yourself" << endl;
-		hero.died();
-	}
-	else if (sel == 4)
-	{
-		system("cls");
-		string reader;
-		ifstream sack;
-		sack.open("data/sack.txt");
-		if (sack.is_open())
+		cout << "\n> ";
+		cin >> sel;
+		if (sel == 1)
 		{
-			while ( getline ( sack, reader ))
-			{
-				cout << reader << endl;
-			}
+			system("cls");
+			MarketPlace market(hero);
+			system("pause");
 		}
-		hero.showProfile();
-		system("pause");	
+		else if (sel == 2)
+		{
+			system("cls");
+			cout <<" \n\n" << endl;
+			map(hero);
+		}
+		else if (sel == 3)
+		{
+			cout << " You killed yourself" << endl;
+			hero.died();
+		}
+		else if (sel == 4)
+		{
+			system("cls");
+			string reader;
+			ifstream sack;
+			sack.open("data/sack.txt");
+			if (sack.is_open())
+			{
+				while ( getline ( sack, reader ))
+				{
+					cout << reader << endl;
+				}
+			}
+			hero.showProfile();
+			system("pause");	
+		}
+		else if (!cin)
+		{
+			throw sorry;
+			cout << "Number = " << sel << endl; 
+		}
+		else if (sel < 1 || sel > 4)
+		{
+			throw "There's no choice like " + to_string(sel);
+		}
+	}
+	catch(string s)
+	{
+		cout << s << endl;
+		cin.clear();
+		cin.ignore(100,'\n');
+		system("pause");
 	}
 }
 void Instruction()
@@ -657,6 +725,7 @@ void Instruction()
 }
 void adventure(Vanced& hero)
 {
+	//Ez ez("Yam - Yam");
 	cout << "You opened your eyes in a cold place " << "\n Asking weird questions to yourself " 
 		 << "\n All is nonsense " << "\n so What is next ?" <<endl;
 	system("pause");
@@ -666,6 +735,7 @@ void adventure(Vanced& hero)
 		 << "What was that ?" << "\n I'll eat ya ! " << endl;
 	system("pause");
 	cout << "A white fury giant has attacked to you " << "\n Take your guard !" << endl;
+	//fighting(hero,ez);
 }
 void fighting(Vanced& hero , Opponent& monster)
 {
@@ -709,6 +779,8 @@ void fighting(Vanced& hero , Opponent& monster)
 		if( hp2 <= 0)
 		{
 			hp2 = 0;
+			cout<<"\n"<<monster.getName()<<"'s HP : " << hp2 << endl 
+			<< "It's dead " << endl;
 			hero.killed(monster);
 			stateup(hero);
 			break;

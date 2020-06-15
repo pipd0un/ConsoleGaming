@@ -4,8 +4,10 @@ main()
 {
 	int selection;
 	char yes;
+	int broken = 0;
 	string name;
 	string line;
+	string sorry = "I think that's not a number ?";
 	Ez ez("Frozen Monster");
 	ifstream opening;
 	opening.open("data/opening.txt");
@@ -19,7 +21,7 @@ main()
 	opening.close();
 	
 	///// GAME START 
-	while ( true )
+	while ( !broken )
 	{
 		cout	<< "\n\n\t\t\tWelcome to Vanced Saga ! "
 		<< "\n\t\t\tInstruction (1)"
@@ -28,54 +30,77 @@ main()
 		<< "\n\t\t\tExit (4)" << endl;
 		do
 		{
-			cout << "\t\t\t> ";
-			cin >> selection;
-			if (!(selection > 0 && selection < 5))
+			try
 			{
-				cout << "Wrong selection ! Try again ..." << endl;
+				cout << "\t\t\t> ";
+				cin >> selection;
+				if( selection == 1 )
+				{
+					cout << "\n\n\n"<< endl;
+					Instruction(); /*
+					system("pause");
+					cin.clear();
+					cin.ignore(100,'\n'); */
+				}
+				else if ( selection == 2 )
+				{
+					system("cls");
+					cout << "What is your name warrior ?" << "\n> ";
+					cin >> name;
+					Vanced hero(name);
+					cout << "You are so sleepy and fall asleep for long time ...";
+					system("cls");
+					adventure(hero);
+					fighting(hero,ez);
+					cout << "So whats next ?" << endl;
+					while(!hero.isDied())
+					{
+						gameMenu(hero);
+					}
+					cout << "Want to see Score Table ? (y/n)" << endl;
+					cin >> yes;
+					if ( toupper(yes) == 'Y' )
+					{
+						hero.scoreTable();
+					}
+					else 
+					{
+						cout << "Okay , see ya " << endl;
+					}
+					break;				///// GAME ENDS
+				}
+				else if ( selection == 3)
+				{
+					cout << "Coming Soon ..." << endl;
+				}
+				else if (selection == 4 )
+				{
+					cout << "\t\t\tSee ya warrior "<<endl;
+					broken = 1;
+				}
+				else if (!cin)
+				{
+					throw sorry;
+				}
+				else if (selection <1 || selection > 4)
+				{
+					throw selection;
+				}
 			}
-		}while( !(selection > 0 && selection < 5));
-		if( selection == 1 )
-		{
-			cout << "\n\n\n"<< endl;
-			Instruction();
-		}
-		else if ( selection == 2 )
-		{
-			system("cls");
-			cout << "What is your name warrior ?" << "\n> ";
-			cin >> name;
-			Vanced hero(name);
-			cout << "You are so sleepy and fall asleep for long time ...";
-			system("cls");
-			adventure(hero);
-			fighting(hero,ez);
-			cout << "So whats next ?" << endl;
-			while(!hero.isDied())
+			catch(string s)
 			{
-				gameMenu(hero);
+				cout << s << endl;
+				cin.clear();
+				cin.ignore(100,'\n');
 			}
-			cout << "Want to see Score Table ? (y/n)" << endl;
-			cin >> yes;
-			if ( toupper(yes) == 'Y' )
+			catch(int selection)
 			{
-				hero.scoreTable();
+				cout << "You are not able to choose " << selection << endl;
+				cin.clear();
+				cin.ignore(100,'\n');
 			}
-			else 
-			{
-				cout << "Okay , see ya " << endl;
-			}
-			break;				///// GAME ENDS
 		}
-		else if ( selection == 3)
-		{
-			cout << "Coming Soon ..." << endl;
-		}
-		else if (selection == 4 )
-		{
-			cout << "\t\t\tSee ya warrior "<<endl;
-			break;
-		}
+		while( selection != 1 && selection != 2 && selection != 3 && selection != 4 );
 	}
 	return 0;
 }

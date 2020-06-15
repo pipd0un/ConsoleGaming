@@ -7,27 +7,27 @@
 using namespace std;
 
  /// Classes 
- /*  // EXCEPTION CLASS
-class cantAttack
+   // EXCEPTION CLASS
+   /*
+class CantAttack : public exception
 {
 	public :
-		cantAttack()
+		const char* what()
 		{
-			msg = "You cant attack like that !" ;
+			return "Your choice can not be out of the rules ! ";
 		}
-		cantAttack(int n)
+		void setEntry(int entry)
 		{
-			msg = to_string(n) + "is not a choice ! ";
+			this->entry = entry;
 		}
-		string what()
+		void getEntry()
 		{
-			return msg;
+			cout << "Your selection : " << entry << endl;
 		}
 	private : 
-		string msg;
-} myex;
+		int entry;
+};
  */
-
 class Opponent;
 class Vanced
 {
@@ -159,6 +159,9 @@ class Imp : public Opponent
 		}
 		Imp& operator=(Vanced& obj)
 		{
+			hp = 2 * obj.getHp();
+			power = 2 * obj.getPower();
+			level = 4;
 			return *this;
 		}
 };
